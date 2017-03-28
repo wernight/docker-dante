@@ -21,17 +21,6 @@ RUN set -x \
     # See https://lists.alpinelinux.org/alpine-devel/3932.html
  && ac_cv_func_sched_setscheduler=no ./configure \
  && make install \
-    # Default configuration
- && echo "internal: 0.0.0.0 port = 1080" > /etc/sockd.conf \
- && echo "external: eth0" >> /etc/sockd.conf \
- && echo "external.rotation: route" >> /etc/sockd.conf \
- && echo "" >> /etc/sockd.conf \
- && echo "clientmethod: none" >> /etc/sockd.conf \
- && echo "socksmethod: none" >> /etc/sockd.conf \
- && echo "" >> /etc/sockd.conf \
- && echo "user.unprivileged: sockd" >> /etc/sockd.conf \
- && echo "" >> /etc/sockd.conf \
- && cat example/sockd.conf >> /etc/sockd.conf \
  && cd / \
     # Add an unprivileged user.
  && adduser -S -D -u 8062 -H sockd \
@@ -42,6 +31,9 @@ RUN set -x \
     # Clean up.
  && rm -rf /tmp/* \
  && apk del --purge .build-deps
+
+# Default configuration
+COPY sockd.conf /etc/
 
 EXPOSE 1080
 
