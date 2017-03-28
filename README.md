@@ -33,6 +33,26 @@ like for example:
     }
 
 
+### Requiring authentication
+
+The default config in this image allows everyone to use the proxy. You can add a simple authentication (which will send data unencrypted) by setting up a `Dockerfile` like:
+
+    FROM wernight/dante
+
+    # TODO: Replace 'john' and 'MyPassword' by any username/password you want.
+    RUN printf 'MyPassword\nMyPassword\n' | adduser john
+
+Uncomment line in `sockd.conf`:
+
+    socksmethod: username
+
+Then use SOCKS v5, for example:
+
+    $ curl --proxy socks5://john:MyPassword@localhost:1080 https://example.com
+
+Note: SOCKS v4 will be blocked.
+
+
 Feedbacks
 ---------
 
