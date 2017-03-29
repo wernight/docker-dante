@@ -52,6 +52,8 @@ Then use SOCKS v5, for example:
 
 Note: SOCKS v4 will be blocked.
 
+WARNING: Many browsers do **not** support SOCKS authentication (e.g. see this [Chrome bug](https://bugs.chromium.org/p/chromium/issues/detail?id=256785)).
+
 
 Feedbacks
 ---------
