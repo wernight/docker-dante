@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM alpine:3.12
 
 # TODO: Various optional modules are currently disabled (see output of ./configure):
 # - Libwrap is disabled because tcpd.h is missing.
