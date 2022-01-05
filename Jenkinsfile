@@ -10,7 +10,7 @@ pipeline{
     parameters {
         booleanParam(defaultValue: false, description: 'Skal prosjektet releases?', name: 'isRelease')
         string(name: "releaseVersion", defaultValue: "", description: "Hva er det nye versjonsnummeret?")
-        string(name: "snapshotVersion", defaultValue: "", description: "Hva er den nye snapshotversjonen?")
+        string(name: "snapshotVersion", defaultValue: "", description: "Hva er den nye snapshotversjonen (uten -SNAPSHOT)?")
     }
     stages{
         stage('Initialize') {
@@ -73,6 +73,18 @@ pipeline{
                     image: "${image}",
                     targetRepo: "${env.TARGET_REPO}") */
                 }
+            }
+        }
+        stage('Release: Set new snapshot version') {
+            when {
+                expression { params.isRelease }
+            }
+
+            steps {
+                writeFile(file: "${env.WORKSPACE}/version", text: "${params.snapshotVersion}-SNAPSHOT");
+                sh 'git add version'
+                sh "git commit -m \"Setting new snapshot version to ${params.snapshotVersion}-SNAPSHOT\""
+                gitPush()
             }
         }
     }
