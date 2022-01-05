@@ -61,31 +61,18 @@ pipeline{
                 }
             }
         }
-        stage("Docker build") {
+        stage("Docker build and push") {
             steps {
                 script {
-                    env.DOCKER_IMAGE = docker.build("fiks-socks:${env.IMAGE_TAG}") 
-                }
-            }
-        }
-        stage("Push docker image to Artifactory") {
-            steps {
-                script {
+                    def image = docker.build("fiks-socks:${env.IMAGE_TAG}")
                     docker.withRegistry("http://${env.TARGET_REPO}.artifactory.fiks.ks.no/", 'artifactory-token-based')
                     {
-                        def image = env.DOCKER_IMAGE
-                        image.DOCKER_IMAGE.push()
+                        image.push()
+
                     }
                 }
-                /* rtDockerPush(serverId: 'KS Artifactory',
-                    image: "${env.DOCKER_IMAGE}",
-                    targetRepo: "${env.TARGET_REPO}"
-                )*/
             }
-
         }
-
-
     }
     post{
         always {
