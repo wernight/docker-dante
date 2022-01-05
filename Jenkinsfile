@@ -13,6 +13,11 @@ pipeline{
         string(name: "snapshotVersion", defaultValue: "", description: "Hva er den nye snapshotversjonen?")
     }
     stages{
+        stage('Initialize') {
+            steps {
+                rtBuildInfo(captureEnv: true, maxBuilds: 30)
+            }
+        }
         stage('Release: Set new release version') {
             when {
                 expression { params.isRelease }
@@ -29,7 +34,6 @@ pipeline{
                     env.CURRENT_VERSION = params.releaseVersion
                     currentBuild.description = "Release: ${params.releaseVersion}"
                 }
-
                 gitCheckout()
                 writeFile(file: "${env.WORKSPACE}/version", text: params.releaseVersion);
                 sh 'git add version'
@@ -53,37 +57,32 @@ pipeline{
         stage("Docker build") {
             steps {
                 script {
-                    env.DOCKER_IMAGE = docker.build("") 
+                    env.DOCKER_IMAGE = docker.build("fiks-socks:${env.IMAGE_TAG}") 
                 }
             }
+        }
+        stage("Push docker image to Artifactory") {
+            environment {
+                TARGET_REPO = """${param.isRelease : 'docker-local', 'docker-local-snapshots'}"""
+            }
+            when {
+                expression { params.isRelease }
+            }
+            steps {
+                rtDockerPush(serverId: 'KS Artifactory',
+                    image: "${env.DOCKER_IMAGE}",
+                    targetRepo: "${env.TARGET_REPO}"
+                )
+            }
+
         }
 
-        stage("A"){
-            steps{
-                echo "========executing A========"
-            }
-            post{
-                always{
-                    echo "========always========"
-                }
-                success{
-                    echo "========A executed successfully========"
-                }
-                failure{
-                    echo "========A execution failed========"
-                }
-            }
-        }
+
     }
     post{
-        always{
-            echo "========always========"
+        always {
+            rtPublishBuildInfo(serverId: 'KS Artifactory')
         }
-        success{
-            echo "========pipeline executed successfully ========"
-        }
-        failure{
-            echo "========pipeline execution failed========"
-        }
+
     }
 }
