@@ -16,6 +16,9 @@ pipeline{
         stage('Initialize') {
             steps {
                 rtBuildInfo(captureEnv: true, maxBuilds: 30)
+                script {
+                    env.TARGET_REPO = param.isRelease : 'docker-local' ? 'docker-local-snapshots'
+                }
             }
         }
         stage('Release: Set new release version') {
@@ -62,12 +65,6 @@ pipeline{
             }
         }
         stage("Push docker image to Artifactory") {
-            environment {
-                TARGET_REPO = """${param.isRelease : 'docker-local' ? 'docker-local-snapshots'}"""
-            }
-            when {
-                expression { params.isRelease }
-            }
             steps {
                 rtDockerPush(serverId: 'KS Artifactory',
                     image: "${env.DOCKER_IMAGE}",
