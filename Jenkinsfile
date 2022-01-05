@@ -63,7 +63,7 @@ pipeline{
         }
         stage("Push docker image to Artifactory") {
             environment {
-                TARGET_REPO = """${param.isRelease : 'docker-local', 'docker-local-snapshots'}"""
+                TARGET_REPO = """${param.isRelease : 'docker-local' ? 'docker-local-snapshots'}"""
             }
             when {
                 expression { params.isRelease }
