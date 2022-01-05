@@ -17,7 +17,7 @@ pipeline{
             steps {
                 rtBuildInfo(captureEnv: true, maxBuilds: 30)
                 script {
-                    env.TARGET_REPO = param.isRelease : 'docker-local' ? 'docker-local-snapshots'
+                    env.TARGET_REPO = "${param.isRelease : 'docker-local' ? 'docker-local-snapshots'}"
                 }
             }
         }
