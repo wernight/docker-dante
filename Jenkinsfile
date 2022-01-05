@@ -73,7 +73,7 @@ pipeline{
                 script {
                     docker.withRegistry("http://${env.TARGET_REPO}.artifactory.fiks.ks.no/", 'artifactory-token-based')
                     {
-                        def image = "${env.DOCKER_IMAGE}"
+                        def image = env.DOCKER_IMAGE
                         image.DOCKER_IMAGE.push()
                     }
                 }
