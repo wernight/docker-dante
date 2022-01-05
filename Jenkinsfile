@@ -70,10 +70,16 @@ pipeline{
         }
         stage("Push docker image to Artifactory") {
             steps {
-                rtDockerPush(serverId: 'KS Artifactory',
+                script {
+                    docker.withRegistry("http://${env.TARGET_REPO}.artifactory.fiks.ks.no/", 'artifactory-token-based')
+                    {
+                        env.DOCKER_IMAGE.push()
+                    }
+                }
+                /* rtDockerPush(serverId: 'KS Artifactory',
                     image: "${env.DOCKER_IMAGE}",
                     targetRepo: "${env.TARGET_REPO}"
-                )
+                )*/
             }
 
         }
