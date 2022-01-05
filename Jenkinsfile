@@ -65,11 +65,13 @@ pipeline{
             steps {
                 script {
                     def image = docker.build("fiks-socks:${env.IMAGE_TAG}")
-                    docker.withRegistry("http://${env.TARGET_REPO}.artifactory.fiks.ks.no/", 'artifactory-token-based')
+                    docker.withRegistry("https://${env.TARGET_REPO}.artifactory.fiks.ks.no/", 'artifactory-token-based')
                     {
                         image.push()
-
                     }
+                    /* rtDockerPush(serverId: 'KS Artifactory',
+                    image: "${image}",
+                    targetRepo: "${env.TARGET_REPO}") */
                 }
             }
         }
