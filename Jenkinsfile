@@ -64,21 +64,17 @@ pipeline{
         stage("Docker build and push") {
             agent {
                 docker {
-                    image 'ezkrg/buildx:latest'
+                    image 'data61/magda-builder-docker:latest'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket'
                 }
             }
             steps {
-                script {
-                    //def image = docker.build("fiks-socks:${env.IMAGE_TAG}")
                     docker.withRegistry("https://${env.TARGET_REPO}.artifactory.fiks.ks.no/", 'artifactory-token-based')
                     {
                         sh "docker buildx build --progress=plain -t fiks-socks:${env.IMAGE_TAG} --platform linux/arm64,linux/amd64 --push -o type=registry ."
                    
                     }
-                    /* rtDockerPush(serverId: 'KS Artifactory',
-                    image: "${image}",
-                    targetRepo: "${env.TARGET_REPO}") */
-                }
+                
             }
         }
         stage('Release: Set new snapshot version') {
