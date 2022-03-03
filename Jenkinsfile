@@ -64,7 +64,7 @@ pipeline{
         stage("Docker build and push") {
             agent {
                 docker {
-                    image 'data61/magda-builder-docker:latest'
+                    image 'ezkrg/buildx:latest'
                 }
             }
             steps {
