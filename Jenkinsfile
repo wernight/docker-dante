@@ -66,6 +66,8 @@ pipeline{
                 docker {
                     image 'data61/magda-builder-docker:latest'
                     args '-v /var/run/docker.sock:/var/run/docker.sock -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket --group-add docker'
+                    registryUrl "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/"
+                    registryCredentialsId 'artifactory-token-based'
                 }
             }
             environment {
@@ -74,9 +76,9 @@ pipeline{
             steps {
                 sh "docker version"
                 sh(script: "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --progress=plain .", label: "Build multiarch docker image") 
-                withDockerRegistry(credentialsId: 'artifactory-token-based', url: "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/") {
-                    sh "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --push -o type=registry --progress=plain ."                   
-                }
+                // withDockerRegistry(credentialsId: 'artifactory-token-based', url: "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/") {
+                //    sh "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --push -o type=registry --progress=plain ."                   
+                //}
             }
         }
         stage('Release: Set new snapshot version') {
