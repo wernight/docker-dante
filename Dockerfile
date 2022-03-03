@@ -4,6 +4,8 @@ FROM alpine:3.15
 # - Libwrap is disabled because tcpd.h is missing.
 # - BSD Auth is disabled because bsd_auth.h is missing.
 # - ...
+ARG TARGETOS
+ARG TARGETARCH
 
 RUN set -x \
     # Runtime dependencies.
@@ -19,14 +21,14 @@ RUN set -x \
  && curl -L https://www.inet.no/dante/files/dante-1.4.3.tar.gz | tar xz \
  && cd dante-* \
     # See https://lists.alpinelinux.org/alpine-devel/3932.html
- && ac_cv_func_sched_setscheduler=no ./configure \
+ && ac_cv_func_sched_setscheduler=no ./configure --build=${TARGETARCH}-unknown-linux-gnu \
  && make install \
  && cd / \
     # Add an unprivileged user.
  && adduser -S -D -u 8062 -H sockd \
     # Install dumb-init (avoid PID 1 issues).
     # https://github.com/Yelp/dumb-init 
- && curl -Lo /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 \
+ && curl -Lo /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_${TARGETARCH} \
  && chmod +x /usr/local/bin/dumb-init \
     # Clean up.
  && rm -rf /tmp/* \

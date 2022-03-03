@@ -25,7 +25,6 @@ pipeline{
                         env.TARGET_REPO = 'docker-local-snapshots'
                     }
                 }
-                echo "User: ${UID}, group: ${GID}"
             }
         }
         stage('Release: Set new release version') {
@@ -65,23 +64,19 @@ pipeline{
             }
         }
         stage("Docker build and push") {
-            agent {
-                docker {
-                    image 'data61/magda-builder-docker:latest'
-                    args "-u $UID:$GID"
-                    registryUrl "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/"
-                    registryCredentialsId 'artifactory-token-based'
-                }
-            }
             environment {
                 IMAGE_NAME_WITH_TAG = "fiks-socks:${env.IMAGE_TAG}"
 
             }
             steps {
-                echo "Image: ${IMAGE_NAME_WITH_TAG}"
-                sh "pwd && whoami"
+                withDockerRegistry(credentialsId: 'artifactory-token-based', url: "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/") {
+                    sh(script: "docker buildx inspect --bootstrap multibuilder", label: "Prepare build environment")
+                    sh(script: "docker buildx build -t ${IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --progress=plain --push -o type=registry .", label: "Build and push multiarch images")
+                }
+                //echo "Image: ${IMAGE_NAME_WITH_TAG}"
+                //sh "pwd && whoami"
                 //sh "docker version"
-                sh(script: "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --progress=plain .", label: "Build multiarch docker image") 
+                //sh(script: "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --progress=plain .", label: "Build multiarch docker image") 
                 // withDockerRegistry(credentialsId: 'artifactory-token-based', url: "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/") {
                 //    sh "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --push -o type=registry --progress=plain ."                   
                 //}
