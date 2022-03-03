@@ -25,6 +25,7 @@ pipeline{
                         env.TARGET_REPO = 'docker-local-snapshots'
                     }
                 }
+                echo "User: ${UID}, group: ${GID}"
             }
         }
         stage('Release: Set new release version') {
@@ -77,6 +78,7 @@ pipeline{
 
             }
             steps {
+                echo "Image: ${IMAGE_NAME_WITH_TAG}"
                 sh "pwd && whoami"
                 //sh "docker version"
                 sh(script: "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --progress=plain .", label: "Build multiarch docker image") 
