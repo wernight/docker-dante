@@ -65,6 +65,7 @@ pipeline{
             agent {
                 docker {
                     image 'data61/magda-builder-docker:latest'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket --group-add docker'
                 }
             }
             environment {
