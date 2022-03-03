@@ -67,9 +67,14 @@ pipeline{
                     image 'data61/magda-builder-docker:latest'
                 }
             }
+            environment {
+                IMAGE_NAME_WITH_TAG = "fiks-socks:${env.IMAGE_TAG}"
+            }
             steps {
+                sh "docker version"
+                sh(script: "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --progress=plain .", label: "Build multiarch docker image") 
                 withDockerRegistry(credentialsId: 'artifactory-token-based', url: "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/") {
-                    sh "docker buildx build -t fiks-socks:${env.IMAGE_TAG} --platform linux/arm64,linux/amd64 --push -o type=registry --progress=plain ."                   
+                    sh "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --push -o type=registry --progress=plain ."                   
                 }
             }
         }
