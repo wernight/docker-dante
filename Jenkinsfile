@@ -69,7 +69,7 @@ pipeline{
                 }
             }
             steps {
-                docker.withRegistry("https://${env.TARGET_REPO}.artifactory.fiks.ks.no/", 'artifactory-token-based') {
+                withDockerRegistry(credentialsId: 'artifactory-token-based', url: "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/") {
                     sh "docker buildx build --progress=plain -t fiks-socks:${env.IMAGE_TAG} --platform linux/arm64,linux/amd64 --push -o type=registry ."                   
                 }
             }
