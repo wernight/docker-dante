@@ -74,7 +74,7 @@ pipeline{
                 IMAGE_NAME_WITH_TAG = "fiks-socks:${env.IMAGE_TAG}"
             }
             steps {
-                sh "pwd"
+                sh "pwd && whoami"
                 //sh "docker version"
                 sh(script: "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --progress=plain .", label: "Build multiarch docker image") 
                 // withDockerRegistry(credentialsId: 'artifactory-token-based', url: "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/") {
