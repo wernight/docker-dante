@@ -62,12 +62,18 @@ pipeline{
             }
         }
         stage("Docker build and push") {
+            agent {
+                docker {
+                    image 'data61/magda-builder-docker:latest'
+                }
+            }
             steps {
                 script {
-                    def image = docker.build("fiks-socks:${env.IMAGE_TAG}")
+                    //def image = docker.build("fiks-socks:${env.IMAGE_TAG}")
                     docker.withRegistry("https://${env.TARGET_REPO}.artifactory.fiks.ks.no/", 'artifactory-token-based')
                     {
-                        image.push()
+                        sh "docker buildx build -t fiks-socks:${env.IMAGE_TAG} --platform linux/arm64,linux/amd64 --push ."
+                   
                     }
                     /* rtDockerPush(serverId: 'KS Artifactory',
                     image: "${image}",
