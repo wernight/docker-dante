@@ -67,7 +67,7 @@ pipeline{
             agent {
                 docker {
                     image 'data61/magda-builder-docker:latest'
-                    args: "-u $UID:$GID"
+                    args "-u $UID:$GID"
                     registryUrl "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/"
                     registryCredentialsId 'artifactory-token-based'
                 }
