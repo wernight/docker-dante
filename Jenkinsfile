@@ -6,6 +6,8 @@ pipeline{
         WORKSPACE = pwd()
         CURRENT_VERSION = readFile "${env.WORKSPACE}/version"
         DOCKER_IMAGE = ''
+        UID = "${sh(script: 'echo $(id -u)', returnStdout: true, label: 'Finn UID')}"
+        GID = "${sh(script: 'echo $(id -g)', returnStdout: true, label: 'Finn GID')}"
     }
     parameters {
         booleanParam(defaultValue: false, description: 'Skal prosjektet releases?', name: 'isRelease')
@@ -65,13 +67,14 @@ pipeline{
             agent {
                 docker {
                     image 'data61/magda-builder-docker:latest'
-
+                    args: "-u $UID:$GID"
                     registryUrl "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/"
                     registryCredentialsId 'artifactory-token-based'
                 }
             }
             environment {
                 IMAGE_NAME_WITH_TAG = "fiks-socks:${env.IMAGE_TAG}"
+
             }
             steps {
                 sh "pwd && whoami"
