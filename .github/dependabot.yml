@@ -1,0 +1,17 @@
+version: 2
+registries:
+  docker-registry-all:
+    type: docker-registry
+    url: https://docker-all.artifactory.fiks.ks.no
+    username: tok-dependabot
+    password: ${{secrets.DEPENDABOT}}
+updates:
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "03:00"
+    timezone: Europe/Oslo
+  open-pull-requests-limit: 15
+  registries:
+  - docker-registry-all    
