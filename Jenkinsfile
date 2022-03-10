@@ -66,20 +66,15 @@ pipeline{
         stage("Docker build and push") {
             environment {
                 IMAGE_NAME_WITH_TAG = "fiks-socks:${env.IMAGE_TAG}"
-
+                CONTEXT_NAME = "EDGE-$BUILD_NUMBER"
             }
             steps {
                 withDockerRegistry(credentialsId: 'artifactory-token-based', url: "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/") {
-                    sh(script: "docker buildx inspect --bootstrap multibuilder", label: "Prepare build environment")
-                    sh(script: "docker buildx build -t ${IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --progress=plain --push -o type=registry .", label: "Build and push multiarch images")
+                    sh(script: 'docker run --privileged --rm tonistiigi/binfmt --install all', label: 'Setup emulation')
+                    sh(script: "docker buildx create --name $CONTEXT_NAME --platform linux/amd64,linux/arm64 --bootstrap --use", label: 'Set up docker buildx environment')
+                    sh(script: "docker buildx build --platform linux/amd64,linux/arm64 --tag ${TARGET_REPO}.artifactory.fiks.ks.no/${IMAGE_NAME_WITH_TAG} --push --progress plain .", label: 'Bygg med docker buildx build')
+                    sh(script: "docker buildx rm $CONTEXT_NAME", returnStatus: true, label: "Cleanup")
                 }
-                //echo "Image: ${IMAGE_NAME_WITH_TAG}"
-                //sh "pwd && whoami"
-                //sh "docker version"
-                //sh(script: "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --progress=plain .", label: "Build multiarch docker image") 
-                // withDockerRegistry(credentialsId: 'artifactory-token-based', url: "https://${env.TARGET_REPO}.artifactory.fiks.ks.no/") {
-                //    sh "docker buildx build -t ${env.IMAGE_NAME_WITH_TAG} --platform linux/arm64,linux/amd64 --push -o type=registry --progress=plain ."                   
-                //}
             }
         }
         stage('Release: Set new snapshot version') {
