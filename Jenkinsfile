@@ -4,6 +4,11 @@ pipeline{
             label "linux-large"
         }
     }
+    options {
+        disableConcurrentBuilds()
+        timeout(time: 3, unit: 'HOURS')
+        buildDiscarder(logRotator(numToKeepStr: '40', artifactNumToKeepStr: '40')) 
+    }    
     environment {
         BUILDNR = "${env.BUILD_NUMBER}"
         GIT_SHA = sh(returnStdout: true, script: 'git rev-parse HEAD').substring(0, 7)
