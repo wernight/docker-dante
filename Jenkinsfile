@@ -1,7 +1,7 @@
 pipeline{
     agent {
         node {
-            label "linux-large"
+            label "linux-large||docker"
         }
     }
     options {
