@@ -1,13 +1,14 @@
 pipeline{
-    agent any
+    agent {
+        node {
+            label "linux-large"
+        }
+    }
     environment {
         BUILDNR = "${env.BUILD_NUMBER}"
         GIT_SHA = sh(returnStdout: true, script: 'git rev-parse HEAD').substring(0, 7)
         WORKSPACE = pwd()
         CURRENT_VERSION = readFile "${env.WORKSPACE}/version"
-        DOCKER_IMAGE = ''
-        UID = "${sh(script: 'echo $(id -u)', returnStdout: true, label: 'Finn UID')}"
-        GID = "${sh(script: 'echo $(id -g)', returnStdout: true, label: 'Finn GID')}"
     }
     parameters {
         booleanParam(defaultValue: false, description: 'Skal prosjektet releases?', name: 'isRelease')
